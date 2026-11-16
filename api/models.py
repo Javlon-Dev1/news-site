@@ -38,7 +38,12 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
     
-class Post(models.Model):
+class News(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'Draft'
+        PUBLISHED = 'published', 'Published'
+        ARCHIVED = 'archived', 'Archived'
+
     title = models.CharField(max_length=300)
     slug = models.SlugField(unique=True, blank=True)
     image = models.ImageField(upload_to='posts/')
@@ -49,9 +54,21 @@ class Post(models.Model):
     tag = models.ManyToManyField(Tag, blank=True, related_name='news')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='news')
 
-    status = models.CharField(max_length=10, choices=status.choices)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
+    is_featured = models.BooleanField(default=False)
+    send_to_telegram = models.BooleanField(default=True)
+    view_count = models.PositiveIntegerField(default=0)
 
+    meta_title = models.CharField(max_length=255, blank=True)
+    meta_description = models.CharField(max_length=300, blank=True)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    uploated_at = models.DateTimeField(auto_now=True)
+    published_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'news'
+        ordering = ['-published_at', '-created_at']
 
     def save(self, *args, **kwargs):
         if not self.slug:

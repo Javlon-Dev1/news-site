@@ -7,7 +7,7 @@ from .models import *
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
-        ('Qoshimcha', {'fields': ('phone', 'avatar')})
+        ('Qoshimcha', {'fields': ('phone', 'avatar')}),
     )
 
 admin.site.register(Category)
